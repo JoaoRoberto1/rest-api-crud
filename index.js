@@ -43,7 +43,6 @@ const searchUser = () => {
     const id = document.getElementById('idUser').value;
 
     if (!id) {
-        // Se o ID estiver vazio, reexibe todos os usuários
         getUsers();
         return;
     }
