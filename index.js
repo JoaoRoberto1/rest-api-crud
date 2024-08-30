@@ -1,8 +1,10 @@
+const btnEditar = (id) => `<button type="button" class="btn btn-warning text-light" data-bs-toggle="modal" data-bs-target="#editModal" onclick="populateEditForm(${id})">Editar</button>`;
+const btnDeletar = (id) => `<button type="button" class="btn btn-danger text-light" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="confirmDelete(${id})">Deletar</button>`;
+
 const getUsers = () => {
-    fetch('https://jsonplaceholder.typicode.com/users')
-        .then(response => response.json())
-        .then(data => {
-            const users = data;
+    axios.get('https://jsonplaceholder.typicode.com/users')
+        .then(response => {
+            const users = response.data;
             const tbody = document.querySelector('#tbody');
             tbody.innerHTML = '';
 
@@ -33,6 +35,10 @@ const getUsers = () => {
                 tdCompany.textContent = u.company.name;
                 tr.appendChild(tdCompany);
 
+                const tdActions = document.createElement('td');
+                tdActions.innerHTML = btnEditar(u.id) + ' ' + btnDeletar(u.id);
+                tr.appendChild(tdActions);
+
                 tbody.appendChild(tr);
             });
         })
@@ -47,9 +53,9 @@ const searchUser = () => {
         return;
     }
 
-    fetch(`https://jsonplaceholder.typicode.com/users/${id}`)
-        .then(response => response.json())
-        .then(data => {
+    axios.get(`https://jsonplaceholder.typicode.com/users/${id}`)
+        .then(response => {
+            const data = response.data;
             const tbody = document.querySelector('#tbody');
             tbody.innerHTML = '';
 
@@ -79,6 +85,10 @@ const searchUser = () => {
             tdCompany.textContent = data.company.name;
             tr.appendChild(tdCompany);
 
+            const tdActions = document.createElement('td');
+            tdActions.innerHTML = btnEditar(data.id) + ' ' + btnDeletar(data.id);
+            tr.appendChild(tdActions);
+
             tbody.appendChild(tr);
         })
         .catch(error => console.error('Erro ao buscar usuário:', error));
@@ -89,6 +99,63 @@ const clearData = () => {
     tbody.innerHTML = ''; 
 
     document.getElementById('idUser').value = '';
+};
+
+const populateEditForm = (id) => {
+    axios.get(`https://jsonplaceholder.typicode.com/users/${id}`)
+        .then(response => {
+            const user = response.data;
+            document.getElementById('editUserId').value = user.id;
+            document.getElementById('editName').value = user.name;
+            document.getElementById('editUsername').value = user.username;
+            document.getElementById('editEmail').value = user.email;
+            document.getElementById('editStreet').value = user.address.street;
+            document.getElementById('editCompany').value = user.company.name;
+        })
+        .catch(error => console.error('Erro ao buscar dados do usuário para editar:', error));
+};
+
+const editUser = () => {
+    const id = document.getElementById('editUserId').value;
+    const updatedUser = {
+        name: document.getElementById('editName').value,
+        username: document.getElementById('editUsername').value,
+        email: document.getElementById('editEmail').value,
+        address: {
+            street: document.getElementById('editStreet').value
+        },
+        company: {
+            name: document.getElementById('editCompany').value
+        }
+    };
+
+    axios.put(`https://jsonplaceholder.typicode.com/users/${id}`, updatedUser)
+        .then(() => {
+            getUsers();
+            alert('Usuário atualizado com sucesso!');
+            const editModal = document.getElementById('editModal');
+            const modal = bootstrap.Modal.getInstance(editModal);
+            modal.hide();
+        })
+        .catch(error => console.error('Erro ao atualizar usuário:', error));
+};
+
+const confirmDelete = (id) => {
+    document.getElementById('deleteUserId').value = id;
+};
+
+const deleteUser = () => {
+    const id = document.getElementById('deleteUserId').value;
+
+    axios.delete(`https://jsonplaceholder.typicode.com/users/${id}`)
+        .then(() => {
+            getUsers();
+            alert('Usuário deletado com sucesso!');
+            const deleteModal = document.getElementById('deleteModal');
+            const modal = bootstrap.Modal.getInstance(deleteModal);
+            modal.hide();
+        })
+        .catch(error => console.error('Erro ao deletar usuário:', error));
 };
 
 document.addEventListener('DOMContentLoaded', () => {
