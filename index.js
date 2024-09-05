@@ -1,6 +1,40 @@
 const btnEditar = (id) => `<button type="button" class="btn btn-warning text-light" data-bs-toggle="modal" data-bs-target="#editModal" onclick="populateEditForm(${id})">Editar</button>`;
 const btnDeletar = (id) => `<button type="button" class="btn btn-danger text-light" data-bs-toggle="modal" data-bs-target="#deleteModal" onclick="confirmDelete(${id})">Deletar</button>`;
 
+const createUserRow = (user) => {
+    const tr = document.createElement('tr');
+
+    const th = document.createElement('th');
+    th.textContent = user.id;
+    tr.appendChild(th);
+
+    const tdName = document.createElement('td');
+    tdName.textContent = user.name;
+    tr.appendChild(tdName);
+
+    const tdUsername = document.createElement('td');
+    tdUsername.textContent = user.username;
+    tr.appendChild(tdUsername);
+
+    const tdEmail = document.createElement('td');
+    tdEmail.textContent = user.email;
+    tr.appendChild(tdEmail);
+
+    const tdStreet = document.createElement('td');
+    tdStreet.textContent = user.address.street;
+    tr.appendChild(tdStreet);
+
+    const tdCompany = document.createElement('td');
+    tdCompany.textContent = user.company.name;
+    tr.appendChild(tdCompany);
+
+    const tdActions = document.createElement('td');
+    tdActions.innerHTML = btnEditar(user.id) + ' ' + btnDeletar(user.id);
+    tr.appendChild(tdActions);
+
+    return tr;
+};
+
 const getUsers = () => {
     axios.get('https://jsonplaceholder.typicode.com/users')
         .then(response => {
@@ -8,38 +42,8 @@ const getUsers = () => {
             const tbody = document.querySelector('#tbody');
             tbody.innerHTML = '';
 
-            users.forEach(u => {
-                const tr = document.createElement('tr');
-
-                const th = document.createElement('th');
-                th.textContent = u.id;
-                tr.appendChild(th);
-
-                const tdName = document.createElement('td');
-                tdName.textContent = u.name;
-                tr.appendChild(tdName);
-
-                const tdUsername = document.createElement('td');
-                tdUsername.textContent = u.username;
-                tr.appendChild(tdUsername);
-
-                const tdEmail = document.createElement('td');
-                tdEmail.textContent = u.email;
-                tr.appendChild(tdEmail);
-
-                const tdStreet = document.createElement('td');
-                tdStreet.textContent = u.address.street;
-                tr.appendChild(tdStreet);
-
-                const tdCompany = document.createElement('td');
-                tdCompany.textContent = u.company.name;
-                tr.appendChild(tdCompany);
-
-                const tdActions = document.createElement('td');
-                tdActions.innerHTML = btnEditar(u.id) + ' ' + btnDeletar(u.id);
-                tr.appendChild(tdActions);
-
-                tbody.appendChild(tr);
+            users.forEach(user => {
+                tbody.appendChild(createUserRow(user));
             });
         })
         .catch(error => console.error('Erro ao buscar usuários:', error));
@@ -55,41 +59,10 @@ const searchUser = () => {
 
     axios.get(`https://jsonplaceholder.typicode.com/users/${id}`)
         .then(response => {
-            const data = response.data;
+            const user = response.data;
             const tbody = document.querySelector('#tbody');
             tbody.innerHTML = '';
-
-            const tr = document.createElement('tr');
-
-            const th = document.createElement('th');
-            th.textContent = data.id;
-            tr.appendChild(th);
-
-            const tdName = document.createElement('td');
-            tdName.textContent = data.name;
-            tr.appendChild(tdName);
-
-            const tdUsername = document.createElement('td');
-            tdUsername.textContent = data.username;
-            tr.appendChild(tdUsername);
-
-            const tdEmail = document.createElement('td');
-            tdEmail.textContent = data.email;
-            tr.appendChild(tdEmail);
-
-            const tdStreet = document.createElement('td');
-            tdStreet.textContent = data.address.street;
-            tr.appendChild(tdStreet);
-
-            const tdCompany = document.createElement('td');
-            tdCompany.textContent = data.company.name;
-            tr.appendChild(tdCompany);
-
-            const tdActions = document.createElement('td');
-            tdActions.innerHTML = btnEditar(data.id) + ' ' + btnDeletar(data.id);
-            tr.appendChild(tdActions);
-
-            tbody.appendChild(tr);
+            tbody.appendChild(createUserRow(user));
         })
         .catch(error => console.error('Erro ao buscar usuário:', error));
 };
